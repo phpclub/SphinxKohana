@@ -18,17 +18,6 @@ class Sphinx_Search_Index
         $this->doc_id = $doc_id;
     }
 
-    public function index($field)
-    {
-        $name = (string)$field;
-        if (is_array($field)) 
-        {
-            $name = $field[0];
-            $field = $field[1];
-        }
-        $this->indexes[$name] = $field;
-    }
-
     public function has($attribute)
     {
         $name = (string)$attribute;
@@ -53,12 +42,10 @@ class Attr_Multi extends Attr
 {
     public $var = 'sql_attr_multi';
 }
-
 class Attr_Uint extends Attr
 {
     public $var = 'sql_attr_uint';
 }
-
 class Attr
 {
     public $var = NULL;
