@@ -3,10 +3,12 @@
 return array(
     'default' => array
     (
+        // Location of Sphinx install bin folder
         'bin'       =>  '/usr/lib/sphinx/bin',
-        'data_folder'   =>  'application/cache/sphinx',
+        // Folder to save the index files
+        'data_folder'   =>  'application/sphinx_data',
         'core_file'     =>  'core_sphinx.conf',
-        'conf'        =>  DOCROOT.'modules/sphinx/classes/sphinx.php',
+        'conf'        =>  DOCROOT.'modules/sphinx/conf.php',
         'database'  =>  array(
             'sql_host'  =>  Kohana::config('database.default.connection.hostname'),
             'sql_user'  =>  Kohana::config('database.default.connection.username'),

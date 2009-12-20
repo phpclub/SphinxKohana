@@ -12,15 +12,9 @@ class Sphinx_Search_Source
         $this->index = $index;
     }
 
-    public function has($attribute)
+    public function __set($type, $variable)
     {
-        $name = (string)$attribute;
-        if (is_array($attribute))
-        {
-            $name = $attribute[0];
-            $attribute = $attribute[1];
-        }
-        $this->attributes[$name] = $attribute;
+        $this->attributes[] = array($type, $variable);
     }
 
     public function index(Sphinx_Search_Index $index)

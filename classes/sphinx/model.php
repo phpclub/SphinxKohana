@@ -1,3 +1,6 @@
 <?php
 
-interface Sphinx_Model extends Sphinx_Search_Model {}
+interface Sphinx_Model
+{
+    public function _sphinx_index();
+}
