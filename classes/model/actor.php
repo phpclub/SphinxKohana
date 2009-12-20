@@ -30,7 +30,6 @@ class Model_Actor extends Sprig implements Sphinx_Model
     {
         // Create Source
         $config = new Sphinx_Conf(__CLASS__);
-
         /*
         $config->sql_query = "
             SELECT actor_id, CONCAT(first_name, ' ', last_name) as sort_name, first_name, last_name, UNIX_TIMESTAMP(last_update) as last_update

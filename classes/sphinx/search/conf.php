@@ -6,10 +6,16 @@ class Sphinx_Search_Conf
     public $sql_query = NULL;
     public $attributes = array();
     public $index_conf = NULL;
+    public $pk = NULL;
 
     public function  __construct($index)
     {
         $this->index = $index;
+    }
+
+    public function pk($key)
+    {
+        $this->pk = $key;
     }
 
     public function __set($type, $variable)

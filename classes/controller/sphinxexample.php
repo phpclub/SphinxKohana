@@ -2,12 +2,32 @@
 
 class Controller_SphinxExample extends Controller {
 
-	public function action_index()
-	{
-        $actor_search = Sphinx::factory(Sprig::Factory('actor'));
+    public function before()
+    {
+        echo '
+        <a href="'.URL::site('sphinxexample').'">Examples Home</a> | 
+        <a href="'.URL::site('sphinxexample/runindex').'">Run Index</a> |
+        <a href="'.URL::site('sphinxexample/run/start').'">Start Daemon</a> |
+        <a href="'.URL::site('sphinxexample/run/stop').'">Stop Daemon</a> |
+        <a href="'.URL::site('sphinxexample/run/restart').'">Restart Daemon</a>
+        <br/>';
+        echo '
+        <a href="'.URL::site('sphinxexample/test').'">Example 1</a> | 
+        <a href="'.URL::site('sphinxexample/test2').'">Example 2</a> | 
+        <a href="'.URL::site('sphinxexample/test3').'">Example 3</a> | 
+        <a href="'.URL::site('sphinxexample/string').'">Normal Index(non model)</a> | 
+        <a href="'.URL::site('sphinxexample/orm').'">ORM Model</a> | 
+        <br/>';
+    }
 
+    public function action_index()
+    {
+    }
+
+	public function action_runindex()
+	{
         echo '<pre>';
-        echo $actor_search->run_index();
+        echo Sphinx::index();
         echo '</pre>';
 	}
 
@@ -35,9 +55,12 @@ class Controller_SphinxExample extends Controller {
 
     public function action_orm($query = NULL)
     {
+        // Passes in ORM config, which has driver set to orm
         $search = Sphinx::factory(ORM::factory('film'), 'orm');
 
-        if ($query === NULL)
+        echo '<br/><form method="post"><input name="query" value="'.(isset($_POST['query'])? $_POST['query'] : 'goldfinger').'"><input type="submit"/></form>';
+
+        if (!isset($_POST['query']))
         {
             echo '<pre>';
             echo $search->run_index();
@@ -45,8 +68,9 @@ class Controller_SphinxExample extends Controller {
         }
         else
         {
-            $search->query = $query;
+            $search->query = $_POST['query'];
             $search->limit = 20;
+
             ?>
             <table>
             <?php foreach($search as $film): ?>
@@ -61,7 +85,7 @@ class Controller_SphinxExample extends Controller {
         }
     }
 
-    public function action_test3($query = null)
+    public function action_test3()
     {
         $config = new Sphinx_Conf('film_text');
         $config->sql_query = "
@@ -75,7 +99,10 @@ class Controller_SphinxExample extends Controller {
 
         $search = Sphinx::factory($config);
 
-        if (is_null($query))
+        echo '<h3>Passing Sphinx_Conf object instead of normal model</h3>
+            <br/><form method="post"><input name="query" value="'.(isset($_POST['query'])? $_POST['query'] : 'goldfinger').'"><input type="submit"/></form>';
+
+        if (!isset($_POST['query']))
         {
             echo '<pre>';
             echo $search->run_index();
@@ -83,10 +110,10 @@ class Controller_SphinxExample extends Controller {
         }
         else
         {
-            $search->query = $query;
+            $search->query = $_POST['query'];
             $search->limit = 20;
 
-            echo Kohana::debug($search->get_results);
+            echo Kohana::debug($search->results);
         }
     }
 
@@ -94,20 +121,23 @@ class Controller_SphinxExample extends Controller {
     {
         $search = Sphinx::factory(Sprig::factory('actor'));
         $search->query = $query;
-        $search->limit = 10;
+        //$search->limit = 10;
         $search->order_by('films', 'desc');
         $search->group_by('films');
+        // Result matches key is no longer docid
         $search->sc->SetArrayResult(TRUE);
 
-        $result = $search->get_results;
+        $result = $search->results;
 
+        echo '<h3>Grouping, Ordering, and Using Array result instead of Hash</h3>';
+        echo '<pre>';
+        echo '# Films', "\t\t", '# of actors with', '<br/>';
         foreach($search as $key => $actor)
         {
-            echo $actor->actor_id, ' ',$actor->first_name, ' ', $actor->last_name, '<br>';
-            echo $result['matches'][$key]['attrs']['films'], '<br/>';
+            echo $result['matches'][$key]['attrs']['films'], "\t", ' - ', "\t", $search->counts($key), '<br/>';
         }
-
         echo Kohana::debug($result);
+        echo '</pre>';
     }
 
     public function action_string()
@@ -116,15 +146,16 @@ class Controller_SphinxExample extends Controller {
         // But for this example im using the name i gave my model index (__CLASS__)
         $search = Sphinx::factory('Model_Actor');
         $search->limit = 10;
-        $search->order_by('films');
+        $search->order_by('films', 'desc');
 
         ?>
+        <h3>This is just passing in a Index Name to Sphinx::Factory</h3>
         <h3><?php echo count($search);?> results.</h3>
         <table width="500"> 
-        <?php foreach($search as $actor): ?>
+        <?php foreach($search as $i => $actor): ?>
         <tr>
             <td>
-            <?php echo $actor['attrs']['films']; ?>
+            <?php echo $i; //echo $actor['attrs']['films']; ?>
             </td>
             <td>
             <?php echo Kohana::debug($actor); ?>
@@ -137,17 +168,28 @@ class Controller_SphinxExample extends Controller {
 
     public function action_test($page = 1)
     {
+        $page = $page<=0? 1 : $page;
         $search = Sphinx::factory(Sprig::factory('actor'));
         $search->limit = 10;
-        $search->offset = $search->limit * (($page<=0? 1 : $page)-1);
+        $search->offset = $search->limit * ($page-1);
         $search->order_by('sort_fname');
 
-        $result = $search->get_results;
+        $result = $search->results;
         ?>
-        <h3><?php echo count($search);?> results. Of <?php echo $search->total;?></h3>
+        <h2>Sorted by first name</h2>
+        <h3><?php echo $search->offset+1, ' - ', $search->offset+10;?> results. Of <?php echo $search->total;?></h3>
+        <a href="<?php echo URL::site('sphinxexample/test/'.($page-1));?>">Prev</a> | <a href="<?php echo URL::site('sphinxexample/test/'.($page+1));?>">Next</a>
+        <br/>
         <table width="500"> 
-        <?php foreach($search as $actor): ?>
         <tr>
+            <th>docid</th>
+            <th>Films</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+        </tr>
+        <?php foreach($search as $i => $actor): ?>
+        <tr>
+            <td><?php echo $actor->actor_id; ?></td>
             <td>
             <?php echo $search->attr($actor->actor_id, 'films');?>
             </td>

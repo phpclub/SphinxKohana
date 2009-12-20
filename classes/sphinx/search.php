@@ -43,14 +43,15 @@ class Sphinx_Search implements Iterator, Countable
             }
         }
 
-
         $this->config = Kohana::config('sphinx.'.$config);
+
         $driver = 'Sphinx_Driver_'.ucfirst($this->config['driver']);
         $this->driver = new $driver($this->model);
-        $this->sc = new SphinxClient();
+
         /**
          * Set Up SphinxClient Defaults
          */
+        $this->sc = new SphinxClient();
         $this->sc->SetSortMode(SPH_SORT_RELEVANCE);
         $this->sc->SetServer($this->config['server'], $this->config['port']);
         if (isset($this->config['timeout']))
@@ -63,7 +64,7 @@ class Sphinx_Search implements Iterator, Countable
     {
         switch($var)
         {
-            case 'get_results':
+            case 'results':
                 return $this->result();
             break;
 
@@ -86,6 +87,16 @@ class Sphinx_Search implements Iterator, Countable
             default:
                 return NULL;
         }
+    }
+
+    public function counts($match)
+    {
+        return $this->attr($match, '@count');
+    }
+
+    public function groups($match)
+    {
+        return $this->attr($match, '@group');
     }
 
     /**
@@ -276,7 +287,16 @@ class Sphinx_Search implements Iterator, Countable
 
     public function key()
     {
-        return is_object($this->search())? $this->search->key() : key($this->search);
+        if (is_object($this->search()))
+        {
+            // Return Model Primary Key if set
+            if (isset($this->index_config->pk))
+            {
+                return $this->search->current()->{$this->index_config->pk};
+            }
+            return $this->search->key();
+        }
+        return key($this->search);
     }
 
     public function next()
