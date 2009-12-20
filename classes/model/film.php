@@ -1,24 +1,31 @@
 <?php
 
-class Model_Film extends Sprig
+class Model_Film extends ORM implements Sphinx_Model
 {
-    protected $_table = 'film';
 
-    protected function _init()
+    protected $_table_name = 'film';
+    protected $_primary_key = 'film_id';
+    protected $_primary_val = 'title';
+
+    public function _sphinx_index()
     {
-        $this->_fields += array(
-            'film_id'       =>  new Sprig_Field_Auto,
-            'title'         =>  new Sprig_Field_Char(array(
-                'empty'         =>  FALSE,
-                'max_length'    =>  255,
-            )),
-            'description'   =>  new Sprig_Field_Text(array(
-            )),
-            'release_year'  =>  new Sprig_Field_Integer(array(
-            )),
-            'language_id'   =>  new Sprig_Field_HasOne(array(
-                'model'     =>  'language'
-            )),
-        ); 
+        $config = new Sphinx_Conf(__CLASS__);
+
+        $config->sql_query = "
+            SELECT film_id, title, description, release_year, language_id, rental_duration, rental_rate, length, replacement_cost, rating, special_features, UNIX_TIMESTAMP(last_update) as last_update
+            FROM film";
+
+        $config->sql_attr_uint = 'release_year';
+        $config->sql_attr_uint = 'rental_duration';
+        $config->sql_attr_uint = 'language_id';
+        $config->sql_attr_uint = 'length';
+
+        $config->sql_attr_float = 'rental_rate';
+        $config->sql_attr_float = 'replacement_cost';
+
+        $config->sql_attr_timestamp = 'last_update';
+
+        $config->index();
+        return $config;
     }
 }

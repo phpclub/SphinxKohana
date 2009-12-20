@@ -33,6 +33,34 @@ class Controller_SphinxExample extends Controller {
         echo '</pre>';
     }
 
+    public function action_orm($query = NULL)
+    {
+        $search = Sphinx::factory(ORM::factory('film'), 'orm');
+
+        if ($query === NULL)
+        {
+            echo '<pre>';
+            echo $search->run_index();
+            echo '</pre>';
+        }
+        else
+        {
+            $search->query = $query;
+            $search->limit = 20;
+            ?>
+            <table>
+            <?php foreach($search as $film): ?>
+            <tr>
+                <td><?php echo $film->film_id;?></td>
+                <td><?php echo $film->title;?></td>
+                <td><?php echo $film->description;?></td>
+            </tr>
+            <?php endforeach;?>
+            </table>
+            <?php
+        }
+    }
+
     public function action_test3($query = null)
     {
         $config = new Sphinx_Conf('film_text');

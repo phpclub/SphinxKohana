@@ -49,7 +49,6 @@ class Model_Actor extends Sprig implements Sphinx_Model
         $config->sql_attr_timestamp     = 'last_update';
         $config->sql_attr_uint          = 'films';
 
-        // Create Source
         $index = new Sphinx_Index();
         $config->index($index);
 

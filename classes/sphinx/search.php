@@ -5,6 +5,7 @@ class Sphinx_Search implements Iterator, Countable
 
     protected $model = NULL;
     protected $result = NULL;
+    protected $driver = NULL;
 
     public $return_model = TRUE;
     public $sc = NULL;
@@ -42,7 +43,10 @@ class Sphinx_Search implements Iterator, Countable
             }
         }
 
+
         $this->config = Kohana::config('sphinx.'.$config);
+        $driver = 'Sphinx_Driver_'.ucfirst($this->config['driver']);
+        $this->driver = new $driver($this->model);
         $this->sc = new SphinxClient();
         /**
          * Set Up SphinxClient Defaults
@@ -186,11 +190,7 @@ class Sphinx_Search implements Iterator, Countable
                         $docids = array_keys($this->result['matches']);
                     }
 
-                    $query = DB::select()
-                        ->where($this->model->pk(), 'IN', $docids)
-                        ->order_by(new Database_Expression('FIELD(`'.$this->model->pk().'`, '.implode(',', $docids).')'));
-
-                    $this->search = $this->model->load($query, null);
+                    $this->search = $this->driver->in($docids);
                 }
             }
             else
@@ -220,7 +220,7 @@ class Sphinx_Search implements Iterator, Countable
 
     public function run_index($push = FALSE)
     {
-        if ($this->index_config instanceof Sphinx_Source)
+        if ($this->index_config instanceof Sphinx_Conf)
         {
             $this->mk_index();
         }
@@ -326,9 +326,9 @@ class Sphinx_Search implements Iterator, Countable
         return Sphinx::run($bin.'/indexer '.$index.' --config '.$config.' --rotate', $push);
     }
 
-    static public function factory($model)
+    static public function factory($model, $config = 'default')
     {
-        return new self($model);
+        return new Sphinx($model, $config);
     }
 
 }
