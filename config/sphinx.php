@@ -5,7 +5,7 @@ return array(
     (
         'bin'       =>  '/usr/lib/sphinx/bin',
         'data_folder'   =>  'application/cache/sphinx',
-        'core_file'     =>  'application/core_sphinx.conf',
+        'core_file'     =>  'core_sphinx.conf',
         'conf'        =>  DOCROOT.'modules/sphinx/classes/sphinx.php',
         'database'  =>  array(
             'sql_host'  =>  Kohana::config('database.default.connection.hostname'),

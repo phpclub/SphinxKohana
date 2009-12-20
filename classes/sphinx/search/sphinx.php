@@ -4,7 +4,10 @@ class Sphinx_Search_Sphinx implements Iterator, Countable
 {
 
     protected $model = NULL;
+    protected $result = NULL;
     public $query = NULL;
+    public $limit = 100;
+    public $offset = 0;
 
     protected $search = NULL;
 
@@ -75,6 +78,15 @@ class Sphinx_Search_Sphinx implements Iterator, Countable
         $this->model_config = $this->model->_sphinx_index();
     }
 
+    public function result()
+    {
+        if (!$this->search)
+        {
+            $this->search();
+        }
+        return $this->result;
+    }
+
     public function count()
     {
         return count($this->search());
@@ -110,11 +122,11 @@ class Sphinx_Search_Sphinx implements Iterator, Countable
         {
             $sl = new SphinxClient(); 
             $sl->SetMatchMode(SPH_MATCH_EXTENDED2);
-            $sl->SetLimits(0, 100);
+            $sl->SetLimits($this->offset, $this->limit);
             $sl->SetSortMode(SPH_SORT_EXTENDED, '@relevance DESC');
             
-            $result = $sl->Query($this->query, $this->model_config->index);
-            
+            $this->result = $result = $sl->Query($this->query, $this->model_config->index);
+
             if ($result && isset($result['matches']))
             {
                 $docids = array_keys($result['matches']);
@@ -127,7 +139,6 @@ class Sphinx_Search_Sphinx implements Iterator, Countable
             }
             else
             {
-                var_dump($result);
                 $this->search = array();
             }
         }
@@ -173,15 +184,11 @@ class Sphinx_Search_Sphinx implements Iterator, Countable
 
             path = {$docroot}{$this->config['data_folder']}/data/{$this->model_config->index}
 
-            docinfo = extern
-
-            mlock = 0
-
-            min_stemming_len = 4
-
-            min_word_len = 1
         ";
-
+        foreach ($this->model_config->index_conf->values as $var => $value)
+        {
+            $file.="    {$var} = ".$value."\n";
+        }
 
         $file.="
         }

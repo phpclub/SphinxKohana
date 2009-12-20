@@ -18,7 +18,9 @@ class Controller_1 {
         {
             echo file_get_contents($file), PHP_EOL;
         }
-        echo file_get_contents(DOCROOT.'/'.$config['core_file']);
+        //echo file_get_contents(DOCROOT.'/'.$config['core_file']);
+        $files = Kohana::find_file('config', str_replace('.conf', '', $config['core_file']), 'conf');
+        echo file_get_contents(max($files));
         exit();
     }
 

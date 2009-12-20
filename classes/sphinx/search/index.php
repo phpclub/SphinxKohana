@@ -2,64 +2,39 @@
 
 class Sphinx_Search_Index
 {
-    public $doc_id = NULL;
-    public $index = NULL;
-    public $sql_query = NULL;
-    public $attributes = array();
-    public $indexes = array();
+    protected $values = array(
+        'docinfo'               => 'extern',
+        'mlock'                 =>  0,
+        'min_stemming_len'      =>  4,
+        // Min word length indexed ex 4 would not index 'the' but 'they' will be.
+        'min_word_len'          =>  1,
+        'morphology'            =>  'stem_en',
+        // options are sbcs, utf-8; Defaults to sbcs but we want utf-8 default
+        'charset_type'         =>  'utf-8',
+        // Star searching ex: "abc*"
+        'enable_star'           =>  0,
+        // Stip html markup
+        'html_strip'            => 1,
+        //Keep these attr values in the index
+        'html_index_attrs'      =>  'img=alt,title; a=title;',
+        // Removes contents of these tags when striping html
+        'html_remove_elements'  =>  'style, script',
+        // index exact words along with morphed
+        'index_exact_words'     =>  1,
+    );
 
-    public function  __construct($index)
+    public function __set($var, $value)
     {
-        $this->index = $index;
+        $this->values[$var] = $value;
     }
 
-    public function doc_id($doc_id)
+    public function __get($var = NULL)
     {
-        $this->doc_id = $doc_id;
-    }
-
-    public function has($attribute)
-    {
-        $name = (string)$attribute;
-        if (is_array($attribute))
+        if ($var=='values')
         {
-            $name = $attribute[0];
-            $attribute = $attribute[1];
+            return $this->values;
         }
-        $this->attributes[$name] = $attribute;
-    }
-}
-
-class Attr_Sortable extends Attr
-{
-    public $var = 'sql_attr_str2ordinal';
-}
-class Attr_Timestamp extends Attr
-{
-    public $var = 'sql_attr_timestamp';
-}
-class Attr_Multi extends Attr
-{
-    public $var = 'sql_attr_multi';
-}
-class Attr_Uint extends Attr
-{
-    public $var = 'sql_attr_uint';
-}
-class Attr
-{
-    public $var = NULL;
-    public $field = NULL;
-    public $alias = NULL;
-
-    public function __construct($field, $alias = NULL)
-    {
-        $this->field = $field;
-        $this->alias = $alias;
+        return isset($this->values[$var])? $this->values[$var] : NULL;
     }
 
-    public function __toString()
-    {
-        return $this->alias? $this->alias : $this->field;
-    }
 }
