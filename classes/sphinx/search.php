@@ -5,9 +5,9 @@ class Sphinx_Search implements Iterator, Countable
 
     protected $model = NULL;
     protected $result = NULL;
-    protected $return_model = TRUE;
-    public $sc = NULL;
 
+    public $return_model = TRUE;
+    public $sc = NULL;
     public $query = NULL;
     public $limit = 100;
     public $offset = 0;
@@ -26,21 +26,28 @@ class Sphinx_Search implements Iterator, Countable
         }
         else
         {
-            $this->model = $index;
-            // Currently only support for Sprig
-            if (!($this->model instanceof Sphinx_Model && $this->model instanceof Sprig))
+            if ($index instanceof Sphinx_Conf)
             {
-                throw new Kohana_Exception('Model must be interface of Sphinx_Model && instance of Sprig');
+                $this->index_config = $index; 
+                $this->return_model = FALSE;
             }
-            $this->index_config = $this->model->_sphinx_index();
+            elseif ($index instanceof Sphinx_Model)
+            {
+                $this->model = $index;
+                $this->index_config = $this->model->_sphinx_index();
+            }
+            else
+            {
+                throw new Sphinx_Exception('Index must be instanceof Sphinx_Model || Sphinx_Conf');
+            }
         }
 
         $this->config = Kohana::config('sphinx.'.$config);
         $this->sc = new SphinxClient();
-        // Default Sorting Relevance
+        /**
+         * Set Up SphinxClient Defaults
+         */
         $this->sc->SetSortMode(SPH_SORT_RELEVANCE);
-
-
         $this->sc->SetServer($this->config['server'], $this->config['port']);
         if (isset($this->config['timeout']))
         {
@@ -200,12 +207,20 @@ class Sphinx_Search implements Iterator, Countable
 
         $this->result = $this->sc->Query($this->query, $this->index_config->index);
         $this->last_error = $this->sc->GetLastError();
+        if ($this->last_error !== '' && $this->config['debug'])
+        {
+            throw new Sphinx_Exception($this->last_error);
+        }
         $this->last_warning = $this->sc->GetLastWarning();
+        if ($this->last_warning !== '' && $this->config['debug'])
+        {
+            throw new Sphinx_Exception($this->last_warning);
+        }
     }
 
     public function run_index($push = FALSE)
     {
-        if ($this->model)
+        if ($this->index_config instanceof Sphinx_Source)
         {
             $this->mk_index();
         }

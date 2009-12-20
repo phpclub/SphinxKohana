@@ -28,9 +28,9 @@ class Sphinx_Search_Index
         $this->values[$var] = $value;
     }
 
-    public function __get($var = NULL)
+    public function __get($var)
     {
-        if ($var=='values')
+        if ($var == 'values')
         {
             return $this->values;
         }

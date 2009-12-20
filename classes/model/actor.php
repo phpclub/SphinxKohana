@@ -29,7 +29,7 @@ class Model_Actor extends Sprig implements Sphinx_Model
     public function _sphinx_index()
     {
         // Create Source
-        $config = new Sphinx_Source(__CLASS__);
+        $config = new Sphinx_Conf(__CLASS__);
 
         /*
         $config->sql_query = "

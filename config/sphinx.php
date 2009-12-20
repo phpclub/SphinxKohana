@@ -11,6 +11,7 @@ return array(
         'data_folder'   =>  'application/sphinx_data',
         'core_file'     =>  'core_sphinx.conf',
         'conf'        =>  DOCROOT.'modules/sphinx/conf.php',
+        'debug'     =>  TRUE,
         'database'  =>  array(
             'sql_host'  =>  Kohana::config('database.default.connection.hostname'),
             'sql_user'  =>  Kohana::config('database.default.connection.username'),

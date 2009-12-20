@@ -33,6 +33,35 @@ class Controller_SphinxExample extends Controller {
         echo '</pre>';
     }
 
+    public function action_test3($query = null)
+    {
+        $config = new Sphinx_Conf('film_text');
+        $config->sql_query = "
+            SELECT film_id, title, title as sort_title, description
+            FROM `film_text`";
+
+        $config->sql_attr_str2ordinal = 'sort_title';
+
+        // Adds Default Index Conf
+        $config->index();
+
+        $search = Sphinx::factory($config);
+
+        if (is_null($query))
+        {
+            echo '<pre>';
+            echo $search->run_index();
+            echo '</pre>';
+        }
+        else
+        {
+            $search->query = $query;
+            $search->limit = 20;
+
+            echo Kohana::debug($search->get_results);
+        }
+    }
+
     public function action_test2($query = null)
     {
         $search = Sphinx::factory(Sprig::factory('actor'));
