@@ -3,6 +3,8 @@
 return array(
     'default' => array
     (
+        'server'    =>  'localhost',
+        'port'      =>  9312, 
         // Location of Sphinx install bin folder
         'bin'       =>  '/usr/lib/sphinx/bin',
         // Folder to save the index files
