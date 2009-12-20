@@ -37,13 +37,15 @@ class Model_Actor extends Sprig implements Sphinx_Model
             FROM `actor`";
         */
         $config->sql_query = "
-            SELECT `actor`.`actor_id`, CONCAT(first_name, ' ', last_name) as sort_name, first_name, last_name, UNIX_TIMESTAMP(actor.last_update) as last_update, count(film_actor.film_id) as films
+            SELECT `actor`.`actor_id`, first_name as sort_fname, last_name as sort_lname, first_name, last_name, UNIX_TIMESTAMP(actor.last_update) as last_update, count(film_actor.film_id) as films
             FROM `actor`
             INNER JOIN `film_actor` ON `film_actor`.`actor_id` = `actor`.`actor_id`
             GROUP BY `actor`.`actor_id`";
 
         // Attributes
-        $config->sql_attr_str2ordinal   = 'sort_name';
+        $config->sql_attr_str2ordinal   = 'sort_fname';
+        $config->sql_attr_str2ordinal   = 'sort_lname';
+
         $config->sql_attr_timestamp     = 'last_update';
         $config->sql_attr_uint          = 'films';
 
