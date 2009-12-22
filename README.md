@@ -70,29 +70,31 @@ Loading is done with `Sphinx::factory($obj_or_index)`:
 
 Index:
 
-    $search->run_index(); // Pass TRUE to push to /dev/null
+    $search->run_index(); // Pass TRUE to push/fork to /dev/null
 
 ###Searching:
 
 Currently the following is possible:
 
-    $search->limit = $limit;
+    $search->limit($limit)
     //
-    $search->offset = $search->limit * ($page-1)
+    ->offset($search->limit * ($page-1))
     //
-    $search->order_by($fieldname);
+    ->order_by($fieldname, $order_or_func)
     //
-    $search->group_by($fieldname);
+    ->group_by($fieldname)
     //
-    $search->match_mode($mode);
+    ->sort_relevance()
     //
-    $search->ranking_mode($ranker);
+    ->match_mode($mode)
     //
-    $search->filter($attribute, array(5, 1), $exclude = FALSE);
+    ->ranking_mode($ranker)
     //
-    $search->filter_range($attribute, $min, $max, $exclude = FALSE);
+    ->filter($attribute, array(5, 1), $exclude = FALSE)
     //
-    $search->return_model((bool));
+    ->filter_range($attribute, $min, $max, $exclude = FALSE)
+    //
+    ->return_model(bool);
 
 Simple Example:
 
